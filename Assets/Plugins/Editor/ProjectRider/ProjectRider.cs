@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEditor;
 
 namespace ChaosModel.ProjectRider{
@@ -12,23 +11,22 @@ namespace ChaosModel.ProjectRider{
 			get { return System.IO.Path.GetDirectoryName(Application.dataPath); }
 		}
 
-		private static ProjectValidator _validator;
-		private static RiderInstance _riderInstance;
+		private static readonly ProjectValidator Validator;
+		private static readonly RiderInstance RiderInstance;
 
 		static ProjectRider(){
-			Debug.Log("Rider integration initializing");
-			_validator = new ProjectValidator(ProjectPath,PlayerSettings.productName,"v4.0");
-			if(!_validator.Validate()){
+			Validator = new ProjectValidator(ProjectPath,PlayerSettings.productName,"v4.0");
+			if(!Validator.Validate()){
 				Debug.LogError("[ProjectRider] Failed to validate project settings");
 				return;
 			}
 
-			_riderInstance = RiderInstance.CreateRiderInstance(_validator.SolutionFile);
+			RiderInstance = RiderInstance.CreateRiderInstance(Validator.SolutionFile);
 		}
 
 		[UnityEditor.Callbacks.DidReloadScripts]
 		private static void Revalidate(){
-			_validator.Validate();
+			Validator.Validate();
 		}
 
 		[UnityEditor.Callbacks.OnOpenAsset]
@@ -40,9 +38,9 @@ namespace ChaosModel.ProjectRider{
 			}
 			
 			var completeAssetPath = ProjectPath + System.IO.Path.DirectorySeparatorChar + AssetDatabase.GetAssetPath(selected);
-			var args = string.Format(@"{0} --line {1} {2}", _validator.SolutionFile, line, completeAssetPath);
+			var args = string.Format("{0} --line {1} {2}", Validator.SolutionFile, line, completeAssetPath);
 			
-			_riderInstance.OpenRider(args);
+			RiderInstance.OpenRider(args);
 			
 			return true;
 		}
