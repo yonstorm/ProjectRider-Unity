@@ -1,6 +1,11 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
+/*
+ProjectRider - Unity integration
+Version 0.1.0
+*/
+
 namespace ChaosModel.ProjectRider{
 
 	[InitializeOnLoad]
