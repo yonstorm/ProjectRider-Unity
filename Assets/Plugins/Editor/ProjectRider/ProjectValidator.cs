@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -68,6 +69,63 @@ namespace ChaosModel.ProjectRider
 
         private bool ValidateDebugSettings()
         {
+            var workspaceFile = _projectDirectory + Path.DirectorySeparatorChar + "workspace.xml";
+			if (!File.Exists(workspaceFile))
+			{
+			    // TODO: write workspace settings from a template to be able to write debug settings before Rider is started for the first time.
+				return true;
+			}
+
+			var document = XDocument.Load(workspaceFile);
+            var runManagerElement = (from elem in document.Descendants()
+                where elem.Attribute("name") != null && elem.Attribute("name").Value.Equals("RunManager")
+                select elem).FirstOrDefault();
+
+            if (runManagerElement == null)
+            {
+                var projectElement = document.Element("project");
+                if (projectElement == null)
+                    return false;
+
+                runManagerElement = new XElement("RunManager", new XAttribute("name", "RunManager"));
+                projectElement.Add(runManagerElement);
+            }
+
+            var editorConfigElem = (from elem in runManagerElement.Descendants()
+                where elem.Attribute("name") != null && elem.Attribute("name").Value.Equals("UnityEditor-generated")
+                select elem).FirstOrDefault();
+
+            var currentDebugPort = GetDebugPort();
+            if (editorConfigElem == null)
+            {
+                editorConfigElem = new XElement("configuration");
+				var defaultAttr = new XAttribute("default", false);
+				var nameAttr = new XAttribute("name", "UnityEditor-generated");
+				var typeAttr = new XAttribute("type", "ConnectRemote");
+				var factoryNameAttr = new XAttribute("factoryName", "Mono remote");
+				var showStdErrAttr = new XAttribute("show_console_on_std_err", false);
+				var showStdOutAttr = new XAttribute("show_console_on_std_out", true);
+				var portAttr = new XAttribute("port", currentDebugPort);
+				var addressAttr = new XAttribute("address", "localhost");
+
+				editorConfigElem.Add(defaultAttr, nameAttr, typeAttr, factoryNameAttr, showStdErrAttr, showStdOutAttr,
+					portAttr, addressAttr);
+
+				runManagerElement.Add(new XAttribute("selected", "Mono remote.UnityEditor-generated"));
+				runManagerElement.Add(editorConfigElem);
+            }
+            else
+            {
+                editorConfigElem.Attribute("port").Value = currentDebugPort.ToString();
+            }
+
+            document.Save(workspaceFile);
+
+            // Rider doesn't like it small... :/
+            var lines = File.ReadAllLines(workspaceFile);
+            lines[0] = lines[0].Replace("utf-8", "UTF-8");
+            File.WriteAllLines(workspaceFile,lines);
+
             return true;
         }
 
