@@ -86,7 +86,7 @@ namespace ChaosModel.ProjectRider
                 if (projectElement == null)
                     return false;
 
-                runManagerElement = new XElement("RunManager", new XAttribute("name", "RunManager"));
+                runManagerElement = new XElement("component", new XAttribute("name", "RunManager"));
                 projectElement.Add(runManagerElement);
             }
 
