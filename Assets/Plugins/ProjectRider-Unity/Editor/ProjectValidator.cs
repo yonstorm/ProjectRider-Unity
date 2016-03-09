@@ -5,16 +5,7 @@ using System.Xml.Linq;
 
 namespace ChaosModel.ProjectRider
 {
-	internal class ProjectValidator{
-		private static readonly string encodedDotSettingsContent = "PHdwZjpSZXNvdXJjZURpY3Rpb25hcnkgeG1sOnNwYWNlPSIicHJlc2VydmUiIiB4bWxuczp4PSIi" +
-																	"aHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93aW5meC8yMDA2L3hhbWwiIiB4bWxuczpzPSIi" +
-																	"Y2xyLW5hbWVzcGFjZTpTeXN0ZW07YXNzZW1ibHk9bXNjb3JsaWIiIiB4bWxuczpzcz0iInVybjpz" +
-																	"aGVtYXMtamV0YnJhaW5zLWNvbTpzZXR0aW5ncy1zdG9yYWdlLXhhbWwiIiB4bWxuczp3cGY9IiJo" +
-																	"dHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dpbmZ4LzIwMDYveGFtbC9wcmVzZW50YXRpb24i" +
-																	"Ij4gICAgICAgICAgICAgICAgCQk8czpTdHJpbmcgeDpLZXk9IiIvRGVmYXVsdC9Db2RlSW5zcGVj" +
-																	"dGlvbi9DU2hhcnBMYW5ndWFnZVByb2plY3QvTGFuZ3VhZ2VMZXZlbC9ARW50cnlWYWx1ZSIiPkNT" +
-																	"aGFycDUwPC9zOlN0cmluZz48L3dwZjpSZXNvdXJjZURpY3Rpb25hcnk+";
-
+	internal sealed class ProjectValidator{
 		private string projectDirectory;
 		private string _productName;
 		private string _targetVersion;
@@ -30,7 +21,7 @@ namespace ChaosModel.ProjectRider
 		}
 
 		public bool Validate(){
-			return false;
+			return ValidateProjectFiles() && ValidateDotSettings && ValidateDebugSettings();
 		}
 
 		private bool ValidateProjectFiles(){
@@ -48,6 +39,8 @@ namespace ChaosModel.ProjectRider
 
 		private bool ValidateDotSettings(){
 			var projectFiles = Directory.GetFiles(projectDirectory, "*.csproj");
+
+			var dotSettingsContent = Base64Decode(encodedDotSettingsContent);
 			foreach(var file in projectFiles){
 				var dotSettingsFile = file + ".DotSettings";
 				
@@ -55,7 +48,7 @@ namespace ChaosModel.ProjectRider
 					continue;
 				}
 				
-				CreateDotSettingsFile(dotSettingsFile);
+				CreateDotSettingsFile(dotSettingsFile,dotSettingsContent);
 			}
 			
 			return true;
@@ -81,13 +74,12 @@ namespace ChaosModel.ProjectRider
 			document.Save(projectFile);
 		}
 
-		void CreateDotSettingsFile (string dotSettingsFile)
+		private void CreateDotSettingsFile (string dotSettingsFile, string content)
 		{
 			using (var writer = File.CreateText(dotSettingsFile))
 			{
-				writer.Write("");
-			}
-			
+				writer.Write(content);
+			}		
 
 		}
 
@@ -102,5 +94,20 @@ namespace ChaosModel.ProjectRider
 
 			return true;
 		}
+
+		private static string Base64Decode(string base64EncodedData) {
+			var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+			return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+		}
+
+		private readonly string encodedDotSettingsContent = "PHdwZjpSZXNvdXJjZURpY3Rpb25hcnkgeG1sOnNwYWNlPSIicHJlc2VydmUiIiB4bWxuczp4PSIi" +
+				"aHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93aW5meC8yMDA2L3hhbWwiIiB4bWxuczpzPSIi" +
+				"Y2xyLW5hbWVzcGFjZTpTeXN0ZW07YXNzZW1ibHk9bXNjb3JsaWIiIiB4bWxuczpzcz0iInVybjpz" +
+				"aGVtYXMtamV0YnJhaW5zLWNvbTpzZXR0aW5ncy1zdG9yYWdlLXhhbWwiIiB4bWxuczp3cGY9IiJo" +
+				"dHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dpbmZ4LzIwMDYveGFtbC9wcmVzZW50YXRpb24i" +
+				"Ij4gICAgICAgICAgICAgICAgCQk8czpTdHJpbmcgeDpLZXk9IiIvRGVmYXVsdC9Db2RlSW5zcGVj" +
+				"dGlvbi9DU2hhcnBMYW5ndWFnZVByb2plY3QvTGFuZ3VhZ2VMZXZlbC9ARW50cnlWYWx1ZSIiPkNT" +
+				"aGFycDUwPC9zOlN0cmluZz48L3dwZjpSZXNvdXJjZURpY3Rpb25hcnk+";
+		
 	}
 }
