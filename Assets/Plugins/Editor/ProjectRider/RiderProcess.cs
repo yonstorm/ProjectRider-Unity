@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace ChaosModel.ProjectRider{
 	internal class RiderInstance {
@@ -32,12 +33,10 @@ namespace ChaosModel.ProjectRider{
 			const string app = @"/Applications/Rider EAP.app/Contents/MacOS/rider";
 			#elif
 			const string app = @"";
-			UnityEngine.Debug.LogError("[ProjectRider integration] Only OSX integration supported at the moment.");
+			throw new PlatformNotSupportedException("[ProjectRider integration] Only OSX integration supported at the moment.");
 			#endif
 
-			var baseArgs = solutionFile;
-
-		    return riderInstance ?? (riderInstance = new RiderInstance(app, baseArgs));
+		    return riderInstance ?? (riderInstance = new RiderInstance(app, solutionFile));
 		}
 	}
 }
