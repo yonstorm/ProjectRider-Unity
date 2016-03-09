@@ -10,7 +10,7 @@ namespace ChaosModel.ProjectRider
 		private string _productName;
 		private string _targetVersion;
 
-		private string SolutionFile{
+		internal string SolutionFile{
 			get { return projectDirectory + Path.DirectorySeparatorChar + _productName + ".sln"; }
 		}
 
