@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -40,7 +40,6 @@ namespace ChaosModel.ProjectRider
 		private bool ValidateDotSettings(){
 			var projectFiles = Directory.GetFiles(projectDirectory, "*.csproj");
 
-			var dotSettingsContent = Base64Decode(encodedDotSettingsContent);
 			foreach(var file in projectFiles){
 				var dotSettingsFile = file + ".DotSettings";
 				
@@ -95,19 +94,8 @@ namespace ChaosModel.ProjectRider
 			return true;
 		}
 
-		private static string Base64Decode(string base64EncodedData) {
-			var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
-			return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
-		}
-
-		private readonly string encodedDotSettingsContent = "PHdwZjpSZXNvdXJjZURpY3Rpb25hcnkgeG1sOnNwYWNlPSIicHJlc2VydmUiIiB4bWxuczp4PSIi" +
-				"aHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93aW5meC8yMDA2L3hhbWwiIiB4bWxuczpzPSIi" +
-				"Y2xyLW5hbWVzcGFjZTpTeXN0ZW07YXNzZW1ibHk9bXNjb3JsaWIiIiB4bWxuczpzcz0iInVybjpz" +
-				"aGVtYXMtamV0YnJhaW5zLWNvbTpzZXR0aW5ncy1zdG9yYWdlLXhhbWwiIiB4bWxuczp3cGY9IiJo" +
-				"dHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dpbmZ4LzIwMDYveGFtbC9wcmVzZW50YXRpb24i" +
-				"Ij4gICAgICAgICAgICAgICAgCQk8czpTdHJpbmcgeDpLZXk9IiIvRGVmYXVsdC9Db2RlSW5zcGVj" +
-				"dGlvbi9DU2hhcnBMYW5ndWFnZVByb2plY3QvTGFuZ3VhZ2VMZXZlbC9ARW50cnlWYWx1ZSIiPkNT" +
-				"aGFycDUwPC9zOlN0cmluZz48L3dwZjpSZXNvdXJjZURpY3Rpb25hcnk+";
+		private readonly string dotSettingsContent = @"<wpf:ResourceDictionary xml:space=""preserve"" xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:s=""clr-namespace:System;assembly=mscorlib"" xmlns:ss=""urn:shemas-jetbrains-com:settings-storage-xaml"" xmlns:wpf=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"">
+                                                                    		<s:String x:Key=""/Default/CodeInspection/CSharpLanguageProject/LanguageLevel/@EntryValue"">CSharp50</s:String></wpf:ResourceDictionary>";
 		
 	}
 }
