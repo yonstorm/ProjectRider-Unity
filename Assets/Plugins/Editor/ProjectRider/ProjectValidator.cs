@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using System.Xml.Xsl.Runtime;
 
 namespace ChaosModel.ProjectRider
 {
@@ -68,7 +69,7 @@ namespace ChaosModel.ProjectRider
 
         private bool ValidateDebugSettings()
         {
-            var workspaceFile = _projectDirectory + Path.DirectorySeparatorChar + "workspace.xml";
+            var workspaceFile = _projectDirectory + Path.DirectorySeparatorChar + ".idea" + Path.DirectorySeparatorChar + "workspace.xml";
 			if (!File.Exists(workspaceFile))
 			{
 			    // TODO: write workspace settings from a template to be able to write debug settings before Rider is started for the first time.
