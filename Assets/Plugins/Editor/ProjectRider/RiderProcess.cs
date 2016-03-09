@@ -8,8 +8,8 @@ namespace ChaosModel.ProjectRider{
 		private readonly string _baseArgs;
 
 		private RiderInstance(string app, string baseArgs){
-			this._appName = app;
-			this._baseArgs = baseArgs;
+			_appName = app;
+			_baseArgs = baseArgs;
 		}
 
 		internal void OpenRider(string args){
@@ -26,8 +26,15 @@ namespace ChaosModel.ProjectRider{
 		}
 
 
-		internal static RiderInstance CreateRiderInstance(string solutionFile){
+		internal static RiderInstance CreateRiderInstance(string solutionFile)
+		{
+		    #if UNITY_EDITOR_OSX
 			const string app = @"/Applications/Rider EAP.app/Contents/MacOS/rider";
+			#elif
+			const string app = @"";
+			UnityEngine.Debug.LogError("[ProjectRider integration] Only OSX integration supported at the moment.");
+			#endif
+
 			var baseArgs = solutionFile;
 
 		    return riderInstance ?? (riderInstance = new RiderInstance(app, baseArgs));
