@@ -55,7 +55,7 @@ namespace ChaosModel.ProjectRider
 		}
 
 		private bool ValidateDebugSettings(){
-			return false;
+			return true;
 		}
 
 		private static void ChangeFrameworkVersion (string projectFile, string targetVersion)
