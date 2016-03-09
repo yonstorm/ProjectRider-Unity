@@ -1,26 +1,29 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace ChaosModel.ProjectRider
 {
     internal sealed class ProjectValidator
     {
-        private string projectDirectory;
-        private string _productName;
-        private string _targetVersion;
+        private readonly string _projectDirectory;
+        private readonly string _productName;
+        private readonly string _targetVersion;
 
         internal string SolutionFile
         {
-            get { return projectDirectory + Path.DirectorySeparatorChar + _productName + ".sln"; }
+            get { return _projectDirectory + Path.DirectorySeparatorChar + _productName + ".sln"; }
         }
 
         public ProjectValidator(string projectDirectory, string productName, string targetVersion)
         {
-            this.projectDirectory = projectDirectory;
-            this._productName = productName;
-            this._targetVersion = targetVersion;
+            _projectDirectory = projectDirectory;
+            _productName = productName;
+            _targetVersion = targetVersion;
         }
 
         public bool Validate()
@@ -35,7 +38,7 @@ namespace ChaosModel.ProjectRider
                 return false;
             }
 
-            var projectFiles = Directory.GetFiles(projectDirectory, "*.csproj");
+            var projectFiles = Directory.GetFiles(_projectDirectory, "*.csproj");
             foreach (var file in projectFiles)
             {
                 ChangeFrameworkVersion(file, _targetVersion);
@@ -46,7 +49,7 @@ namespace ChaosModel.ProjectRider
 
         private bool ValidateDotSettings()
         {
-            var projectFiles = Directory.GetFiles(projectDirectory, "*.csproj");
+            var projectFiles = Directory.GetFiles(_projectDirectory, "*.csproj");
 
             foreach (var file in projectFiles)
             {
@@ -57,7 +60,7 @@ namespace ChaosModel.ProjectRider
                     continue;
                 }
 
-                CreateDotSettingsFile(dotSettingsFile, dotSettingsContent);
+                CreateDotSettingsFile(dotSettingsFile, DotSettingsContent);
             }
 
             return true;
@@ -85,7 +88,7 @@ namespace ChaosModel.ProjectRider
             document.Save(projectFile);
         }
 
-        private void CreateDotSettingsFile(string dotSettingsFile, string content)
+        private static void CreateDotSettingsFile(string dotSettingsFile, string content)
         {
             using (var writer = File.CreateText(dotSettingsFile))
             {
@@ -95,21 +98,49 @@ namespace ChaosModel.ProjectRider
 
         private static bool SyncSolution()
         {
-            var T = System.Type.GetType("UnityEditor.SyncVS,UnityEditor");
+            var T = Type.GetType("UnityEditor.SyncVS,UnityEditor");
             if (T == null)
             {
                 return false;
             }
 
             var syncSolution = T.GetMethod("SyncSolution",
-                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                BindingFlags.Public | BindingFlags.Static);
             syncSolution.Invoke(null, null);
 
             return true;
         }
 
-        private readonly string dotSettingsContent =
-            @"<wpf:ResourceDictionary xml:space=""preserve"" xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:s=""clr-namespace:System;assembly=mscorlib"" xmlns:ss=""urn:shemas-jetbrains-com:settings-storage-xaml"" xmlns:wpf=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"">
+
+        private static int GetDebugPort()
+        {
+            var process = new Process
+            {
+                StartInfo =
+                {
+                    FileName = "lsof",
+                    Arguments = "-c /^Unity$/ -i 4tcp -a",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false
+                }
+            };
+            process.Start();
+
+            var output = process.StandardOutput.ReadToEnd();
+
+            const string pattern = @"\nUnity(.*)TCP \*:(?<port>\d+)";
+            var match = Regex.Match(output, pattern);
+
+            var port = -1;
+            if (match.Success)
+            {
+                int.TryParse(match.Groups["port"].Value,out port);
+            }
+
+            return port;
+        }
+
+        private const string DotSettingsContent = @"<wpf:ResourceDictionary xml:space=""preserve"" xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"" xmlns:s=""clr-namespace:System;assembly=mscorlib"" xmlns:ss=""urn:shemas-jetbrains-com:settings-storage-xaml"" xmlns:wpf=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"">
                                                                     		<s:String x:Key=""/Default/CodeInspection/CSharpLanguageProject/LanguageLevel/@EntryValue"">CSharp50</s:String></wpf:ResourceDictionary>";
     }
 }
