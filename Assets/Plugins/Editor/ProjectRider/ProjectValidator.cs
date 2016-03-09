@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using System.Xml.Xsl.Runtime;
 
 namespace ChaosModel.ProjectRider
 {
