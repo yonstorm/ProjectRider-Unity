@@ -4,8 +4,8 @@ namespace ChaosModel.ProjectRider{
 	internal class RiderInstance {
 		private static RiderInstance riderInstance;
 
-		private string _appName;
-		private string _baseArgs;
+		private readonly string _appName;
+		private readonly string _baseArgs;
 
 		private RiderInstance(string app, string baseArgs){
 			this._appName = app;
@@ -27,14 +27,10 @@ namespace ChaosModel.ProjectRider{
 
 
 		internal static RiderInstance CreateRiderInstance(string solutionFile){
-			var app = @"/Applications/Rider EAP.app/Contents/MacOS/rider";
+			const string app = @"/Applications/Rider EAP.app/Contents/MacOS/rider";
 			var baseArgs = solutionFile;
 
-			if(riderInstance == null){
-				riderInstance = new RiderInstance(app,baseArgs);
-			}
-
-			return riderInstance;
+		    return riderInstance ?? (riderInstance = new RiderInstance(app, baseArgs));
 		}
 	}
 }
