@@ -185,10 +185,12 @@ namespace ChaosModel.ProjectRider
 
             var output = process.StandardOutput.ReadToEnd();
 
+            process.WaitForExit();
+
             const string pattern = @"\nUnity(.*)TCP \*:(?<port>\d+)";
             var match = Regex.Match(output, pattern);
 
-            var port = -1;
+            var port = 0;
             if (match.Success)
             {
                 int.TryParse(match.Groups["port"].Value,out port);
