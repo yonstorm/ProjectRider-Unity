@@ -29,7 +29,6 @@ namespace ChaosModel.ProjectRider{
 			RiderInstance = RiderInstance.CreateRiderInstance(Validator.SolutionFile);
 		}
 
-		[UnityEditor.Callbacks.DidReloadScripts]
 		private static void Revalidate(){
 			Validator.Validate();
 		}
