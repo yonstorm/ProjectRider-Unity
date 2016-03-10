@@ -28,11 +28,13 @@ namespace ChaosModel.ProjectRider
 
         public bool Validate()
         {
+            UnityEngine.Debug.Log("[Rider] Validating...");
             return ValidateProjectFiles() && ValidateDotSettings() && ValidateDebugSettings();
         }
 
         private bool ValidateProjectFiles()
         {
+             UnityEngine.Debug.Log("[Rider] Validating... project files");
             if (!File.Exists(SolutionFile) && !SyncSolution())
             {
                 return false;
@@ -49,6 +51,7 @@ namespace ChaosModel.ProjectRider
 
         private bool ValidateDotSettings()
         {
+             UnityEngine.Debug.Log("[Rider] Validating... dot settings");
             var projectFiles = Directory.GetFiles(_projectDirectory, "*.csproj");
 
             foreach (var file in projectFiles)
@@ -68,6 +71,7 @@ namespace ChaosModel.ProjectRider
 
         private bool ValidateDebugSettings()
         {
+             UnityEngine.Debug.Log("[Rider] Validating... debug settings");
             var workspaceFile = _projectDirectory + Path.DirectorySeparatorChar + ".idea" + Path.DirectorySeparatorChar + "workspace.xml";
 			if (!File.Exists(workspaceFile))
 			{
@@ -137,6 +141,7 @@ namespace ChaosModel.ProjectRider
 
             if (frameworkElement == null)
             {
+                 UnityEngine.Debug.LogWarning("[Rider] Could not find TargetFrameworkVersion in: \n" + projectFile);
                 return;
             }
 
@@ -185,10 +190,12 @@ namespace ChaosModel.ProjectRider
 
             var output = process.StandardOutput.ReadToEnd();
 
+            process.WaitForExit();
+
             const string pattern = @"\nUnity(.*)TCP \*:(?<port>\d+)";
             var match = Regex.Match(output, pattern);
 
-            var port = -1;
+            var port = 0;
             if (match.Success)
             {
                 int.TryParse(match.Groups["port"].Value,out port);
