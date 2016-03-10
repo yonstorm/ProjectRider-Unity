@@ -3,7 +3,7 @@ using UnityEditor;
 
 /*
 ProjectRider - Unity integration
-Version 0.1.0
+Version 0.1.1
 */
 
 namespace ChaosModel.ProjectRider{
