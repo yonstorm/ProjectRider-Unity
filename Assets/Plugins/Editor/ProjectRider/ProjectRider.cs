@@ -3,7 +3,7 @@ using UnityEditor;
 
 /*
 ProjectRider - Unity integration
-Version 0.1.0
+Version 0.1.1
 */
 
 namespace ChaosModel.ProjectRider{
@@ -29,7 +29,6 @@ namespace ChaosModel.ProjectRider{
 			RiderInstance = RiderInstance.CreateRiderInstance(Validator.SolutionFile);
 		}
 
-		[UnityEditor.Callbacks.DidReloadScripts]
 		private static void Revalidate(){
 			Validator.Validate();
 		}
