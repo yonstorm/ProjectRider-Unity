@@ -12,7 +12,6 @@ namespace ChaosModel.ProjectRider
     internal sealed class ProjectValidator
     {
         private readonly string _projectDirectory;
-        private readonly string _productName;
         private readonly string _targetVersion;
         private readonly string _solutionFile;
 
@@ -21,16 +20,17 @@ namespace ChaosModel.ProjectRider
             get { return _solutionFile; }
         }
 
-        public ProjectValidator(string projectDirectory, string productName, string targetVersion)
+        public ProjectValidator(string projectDirectory, string targetVersion)
         {
             _projectDirectory = projectDirectory;
-            _productName = productName;
             _targetVersion = targetVersion;
             _solutionFile = ResolveSolutionFile();
         }
 
         private string ResolveSolutionFile()
         {
+            var solutionFile = "";
+
             var solutionFiles = Directory.GetFiles(_projectDirectory, "*.sln");
             if (solutionFiles.Length > 1)
             {
@@ -39,9 +39,15 @@ namespace ChaosModel.ProjectRider
                     File.Delete(file);
                 }
             }
-            var solutionFile = "";
-            if(SyncSolution())
-            	solutionFile = Directory.GetFiles(_projectDirectory, "*.sln")[0];
+            else if (solutionFiles.Length == 1)
+            {
+                solutionFile = solutionFiles[0];
+            }
+            else
+            {
+                if (SyncSolution())
+                    solutionFile = Directory.GetFiles(_projectDirectory, "*.sln")[0];
+            }
 
             return solutionFile;
         }
@@ -55,9 +61,9 @@ namespace ChaosModel.ProjectRider
         private bool ValidateProjectFiles()
         {
             UnityEngine.Debug.Log("[Rider] Validating... project files");
-            if (string.IsNullOrEmpty(SolutionFile))
+            if (string.IsNullOrEmpty(SolutionFile) || !File.Exists(SolutionFile))
             {
-                Debug.LogError("Could not resolve SolutionFile.");
+                UnityEngine.Debug.LogError("Could not resolve SolutionFile.");
                 return false;
             }
 

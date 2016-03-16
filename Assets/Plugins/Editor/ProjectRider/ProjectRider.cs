@@ -20,9 +20,9 @@ namespace ChaosModel.ProjectRider{
 		private static readonly RiderInstance RiderInstance;
 
 		static ProjectRider(){
-			Validator = new ProjectValidator(ProjectPath,PlayerSettings.productName,"v4.0");
+			Validator = new ProjectValidator(ProjectPath,"v4.0");
 			if(!Validator.Validate()){
-				Debug.LogError("[ProjectRider] Failed to validate project settings");
+				Debug.LogError("[ProjectRider] Failed to validate project settings.");
 				return;
 			}
 
@@ -40,6 +40,11 @@ namespace ChaosModel.ProjectRider{
 			{
 				return false;
 			}
+
+		    if (!System.IO.File.Exists(Validator.SolutionFile))
+		    {
+		        Validator.Validate();
+		    }
 			
 			var completeAssetPath = "\"" + ProjectPath + System.IO.Path.DirectorySeparatorChar + AssetDatabase.GetAssetPath(selected) + "\"";
 			var args = string.Format("{0} --line {1} {2}", Validator.SolutionFile, line, completeAssetPath);
