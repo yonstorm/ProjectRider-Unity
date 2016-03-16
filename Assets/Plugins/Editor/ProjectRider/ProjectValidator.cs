@@ -13,24 +13,17 @@ namespace ChaosModel.ProjectRider
     {
         private readonly string _projectDirectory;
         private readonly string _targetVersion;
-        private readonly string _solutionFile;
 
-        internal string SolutionFile
-        {
-            get { return _solutionFile; }
-        }
+        internal string SolutionFile { get; private set; }
 
         public ProjectValidator(string projectDirectory, string targetVersion)
         {
             _projectDirectory = projectDirectory;
             _targetVersion = targetVersion;
-            _solutionFile = ResolveSolutionFile();
         }
 
-        private string ResolveSolutionFile()
+        private bool ResolveSolutionFile()
         {
-            var solutionFile = "";
-
             var solutionFiles = Directory.GetFiles(_projectDirectory, "*.sln");
             if (solutionFiles.Length > 1)
             {
@@ -41,15 +34,15 @@ namespace ChaosModel.ProjectRider
             }
             else if (solutionFiles.Length == 1)
             {
-                solutionFile = solutionFiles[0];
+                SolutionFile = solutionFiles[0];
             }
             else
             {
                 if (SyncSolution())
-                    solutionFile = Directory.GetFiles(_projectDirectory, "*.sln")[0];
+                    SolutionFile = Directory.GetFiles(_projectDirectory, "*.sln")[0];
             }
 
-            return solutionFile;
+            return !string.IsNullOrEmpty(SolutionFile) && File.Exists(SolutionFile);
         }
 
         public bool Validate()
@@ -61,7 +54,7 @@ namespace ChaosModel.ProjectRider
         private bool ValidateProjectFiles()
         {
             UnityEngine.Debug.Log("[Rider] Validating... project files");
-            if (string.IsNullOrEmpty(SolutionFile) || !File.Exists(SolutionFile))
+            if (!ResolveSolutionFile())
             {
                 UnityEngine.Debug.LogError("Could not resolve SolutionFile.");
                 return false;
