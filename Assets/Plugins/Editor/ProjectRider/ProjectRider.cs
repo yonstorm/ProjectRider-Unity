@@ -47,7 +47,7 @@ namespace ChaosModel.ProjectRider{
 		    }
 			
 			var completeAssetPath = "\"" + ProjectPath + System.IO.Path.DirectorySeparatorChar + AssetDatabase.GetAssetPath(selected) + "\"";
-			var args = string.Format("{0} --line {1} {2}", Validator.SolutionFile, line, completeAssetPath);
+			var args = string.Format("{0} --line {1} {2}", "\"" + Validator.SolutionFile + "\"", line, completeAssetPath);
 			
 			RiderInstance.OpenRider(args);
 			
