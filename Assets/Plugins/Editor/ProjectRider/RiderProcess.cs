@@ -3,14 +3,14 @@ using System.Diagnostics;
 
 namespace ChaosModel.ProjectRider{
 	internal class RiderInstance {
-		private static RiderInstance riderInstance;
+		private static RiderInstance _riderInstance;
 
 		private readonly string _appName;
 		private readonly string _baseArgs;
 
 		private RiderInstance(string app, string baseArgs){
 			_appName = app;
-			_baseArgs = baseArgs;
+			_baseArgs = "\"" + baseArgs + "\"";
 		}
 
 		internal void OpenRider(string args){
@@ -27,7 +27,7 @@ namespace ChaosModel.ProjectRider{
 		}
 
 
-		internal static RiderInstance CreateRiderInstance(string solutionFile)
+		internal static RiderInstance Instance(string solutionFile)
 		{
 		    #if UNITY_EDITOR_OSX
 			const string app = @"/Applications/Rider EAP.app/Contents/MacOS/rider";
@@ -36,7 +36,7 @@ namespace ChaosModel.ProjectRider{
 			throw new PlatformNotSupportedException("[ProjectRider integration] Only OSX integration supported at the moment.");
 			#endif
 
-		    return riderInstance ?? (riderInstance = new RiderInstance(app, solutionFile));
+		    return _riderInstance ?? (_riderInstance = new RiderInstance(app, solutionFile));
 		}
 	}
 }
