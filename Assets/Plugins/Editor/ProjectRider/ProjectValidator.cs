@@ -3,9 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace ChaosModel.ProjectRider
 {
@@ -47,16 +46,16 @@ namespace ChaosModel.ProjectRider
 
         public bool Validate()
         {
-            UnityEngine.Debug.Log("[Rider] Validating...");
+            Debug.Log("[Rider] Validating...");
             return ValidateProjectFiles() && ValidateDotSettings() && ValidateDebugSettings();
         }
 
         private bool ValidateProjectFiles()
         {
-            UnityEngine.Debug.Log("[Rider] Validating... project files");
+            Debug.Log("[Rider] Validating... project files");
             if (!ResolveSolutionFile())
             {
-                UnityEngine.Debug.LogError("Could not resolve SolutionFile.");
+                Debug.LogError("Could not resolve SolutionFile.");
                 return false;
             }
 
@@ -71,7 +70,7 @@ namespace ChaosModel.ProjectRider
 
         private bool ValidateDotSettings()
         {
-            UnityEngine.Debug.Log("[Rider] Validating... dot settings");
+            Debug.Log("[Rider] Validating... dot settings");
             var projectFiles = Directory.GetFiles(_projectDirectory, "*.csproj");
 
             foreach (var file in projectFiles)
@@ -91,7 +90,7 @@ namespace ChaosModel.ProjectRider
 
         private bool ValidateDebugSettings()
         {
-            UnityEngine.Debug.Log("[Rider] Validating... debug settings");
+            Debug.Log("[Rider] Validating... debug settings");
             var workspaceFile = _projectDirectory + Path.DirectorySeparatorChar + ".idea" + Path.DirectorySeparatorChar +
                                 "workspace.xml";
             if (!File.Exists(workspaceFile))
@@ -162,7 +161,7 @@ namespace ChaosModel.ProjectRider
 
             if (frameworkElement == null)
             {
-                UnityEngine.Debug.LogWarning("[Rider] Could not find TargetFrameworkVersion in: \n" + projectFile);
+                Debug.LogWarning("[Rider] Could not find TargetFrameworkVersion in: \n" + projectFile);
                 return;
             }
 
@@ -197,30 +196,8 @@ namespace ChaosModel.ProjectRider
 
         private static int GetDebugPort()
         {
-            var process = new Process
-            {
-                StartInfo =
-                {
-                    FileName = "lsof",
-                    Arguments = "-c /^Unity$/ -i 4tcp -a",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false
-                }
-            };
-            process.Start();
-
-            var output = process.StandardOutput.ReadToEnd();
-
-            process.WaitForExit();
-
-            const string pattern = @"\nUnity(.*)TCP \*:(?<port>\d+)";
-            var match = Regex.Match(output, pattern);
-
-            var port = 0;
-            if (match.Success)
-            {
-                int.TryParse(match.Groups["port"].Value, out port);
-            }
+            var processId = Process.GetCurrentProcess().Id;
+            var port = 56000 + (processId % 1000);
 
             return port;
         }
